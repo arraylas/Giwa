@@ -1,32 +1,29 @@
-import '../styles/globals.css';
-import '@rainbow-me/rainbowkit/styles.css';
-import { WagmiConfig, configureChains, createConfig } from 'wagmi';
-import { publicProvider } from 'wagmi/providers/public';
-import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
-import { sepolia } from 'wagmi/chains';
-import { giwaSepolia } from '../lib/bridgeConfig';
+import "@/styles/globals.css";
+import { WagmiConfig, createConfig } from "wagmi";
+import { RainbowKitProvider, getDefaultWallets } from "@rainbow-me/rainbowkit";
+import { sepolia } from "wagmi/chains";
+import { http } from "viem";
+import { giwaSepolia } from "@/lib/bridgeConfig";
 
-const { chains, publicClient } = configureChains(
-  [sepolia, giwaSepolia],
-  [publicProvider()]
-);
+// WalletConnect project ID dari env
+const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
 
 const { connectors } = getDefaultWallets({
-  appName: 'Giwa Bridge UI',
-  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '',
-  chains,
+  appName: "GIWA Bridge",
+  projectId,
+  chains: [sepolia, giwaSepolia],
 });
 
-const wagmiConfig = createConfig({
+const config = createConfig({
   autoConnect: true,
   connectors,
-  publicClient,
+  publicClient: http(), // <— ganti publicProvider() jadi http() dari viem
 });
 
 export default function App({ Component, pageProps }) {
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider chains={chains}>
+    <WagmiConfig config={config}>
+      <RainbowKitProvider chains={[sepolia, giwaSepolia]}>
         <Component {...pageProps} />
       </RainbowKitProvider>
     </WagmiConfig>
